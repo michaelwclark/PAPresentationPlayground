@@ -1,21 +1,16 @@
-define(
+require(
        //Module Name
-       "app/config",
+       // "config",
 
        //Dependancy Array
        [],
 
        //Function to execute after deps load
        function(){
-
+		console.log("AppConfig Loaded");
        	//Config Module holds application config variables.
-       	function Config(){
-
-
-       		this.logging_on = true;
-       	}
-
-       	return Config;
-
+       	return  {
+       		logging_on : true
+       	};
        }
 );

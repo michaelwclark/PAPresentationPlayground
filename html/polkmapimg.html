@@ -1,11 +1,14 @@
 <!DOCTYPE html>
 <html><head><meta charset="UTF-8">
   <title>polkmapimg.html</title>
-  <script src="./polkmapimg.js"></script>
+  <script src="../scripts//app/polkmapimg-old.js"></script>
 </head><body>
   <p>Old DPs & below don't respond to input. Need click to center. Reduce code w/ custom objects vs subroutines. Add special click processing, usemap/tooltips, dp & lon/lat from click/hover, caching. Change from click-to-center to dragging preloaded tiles ala Google? Switch to canvas layers?</p>
   <div id="pmi1"></div>
   <script>
+
+    //Perfect example of how defining dependancies and using a module loader can save errors and issues.
+    //Without this polkMapimg.js loaded before this there are script errors, this will also occur and cause silent failure if there are any interpreter scripts in the JS that has been loaded to this point.
     var pmi1 = new PolkMapImg({
       containerId: "pmi1",
       mapfile:     "div0.map",

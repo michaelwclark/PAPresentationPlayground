@@ -136,7 +136,43 @@ function PolkMapImage(args){
 		return self.mapCgi.value + "?" + queryString;		
 	};
 
-	
+	setContainerInnerHtml = function() {
+		var domHelper = new DOMHelper();
+  
+		var cid = this.containerId;
+  		var controls_id = cid + '_controls';
+  		var zoomto_id = cid+"_zoomto";
+  		var zoomout_id = cid + "_zoomout";
+  		var zoomin_id = cid + "_zoomin";
+		var imgId = cid +"_img";
+		var busy_id = cid + "_busy";
+
+		var wh = self.size.value;
+		var domEls = new Array();
+
+		//Initial Map IMG- Always Create.
+		domEls.push(domHelper.createEl("img", {id:imgID, src: this.imgUrl(), width:wh[0], height:wh[1], alt:"Loading Map..."}));
+		
+		var label = self.zoomto.label || '';
+
+		if(this.zoomto.ui == 'text'){
+			domEls.push(domHelper.createEl("label", {for:zoomto_id}, label));
+			domEls.push(domHelper.createEl("input", {type:'text', id:zoomto_id, value: this.zoomin.src, title: this.zoomin.title}));					
+		}
+
+		if(this.zoomin.ui == 'image'){
+			domEls.push(domHelper.createEl("input", {type:'image',id:zoomin_id, src:this.zoomin.src, title:this.zoomin.title}));
+		}
+
+		if(this.zoomout.ui == 'image'){
+			domEls.push(domHelper.createEl("input",{type:'image',id:zoomout_id, src:this.zoomout.src, title:this.zoomout.title}));
+		}
+		
+		domEls.push(domHelper.createEl("span",{id:busy_id, style:"display:none"}, "&nbsp; loading map...."));
+		domEls.push(domHelper.createEl("br",{}));
+		
+
+	}
 
 
 		

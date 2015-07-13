@@ -1,6 +1,10 @@
 function PolkMapImage(args){ 
 	var utils = new ApplicationUtilities();	
-	//var self = this.LoadDynamicArgs(args);
+
+	//We dont want PolkMapImage to hold these defaults all the time, so I pulled this 
+	//into it's own function to call on when needed.
+
+	//var self = this.LoadDynamicArgs(args); //WILL FAIL, unless Object prototype code has been evaluated.
 	var self = this.loadDefaults();
 
 	loadDefaults : function(){
@@ -18,6 +22,11 @@ function PolkMapImage(args){
 		                 { name: "parcel"     , isOn: true , ui: 'checkbox', label: 'Parcels' },
 		                 { name: "street"     , isOn: true , ui: 'checkbox', label: 'Streets' }
 		  ];
+
+			// The below properties all look to have the same composition. 
+  			// Utilizing a reusable class could clean any other code up that utilizes this pattern.
+  			// Same applies to any repeted parameters above (layers, zoomin/out, zoomto)
+
 		  self.ndps   = { value: ['29100452571000','29100452572000','29100452573000'],
 		                  ui: 'text', label: 'New DPs', style: 'display: inline' };
 		  self.odps   = { value: ['29100452522003'], ui: 'text', label: 'Old DPs',
@@ -36,20 +45,65 @@ function PolkMapImage(args){
             return self;
 	};
 
-};
+	zoomtoRect : function(){
+		var wh = this.size.value;
+		var zh = Math.round(this.zoomto.value * wh[1] / wh[0]);
+		//Here is a good example of how creating more structure objects can avoid errors.
+		//right now PolkMapImg.zoomto is a dynamic runtime property with no validation or 
+		//constraint. If this isn't set properly (i.e. containing an object with value property)
+		//this function will error out and stop further execution (unless caught).
+		return [0,0,this.zoomto.value,zh].join('+');
+	};
 
-function ApplicationUtilities(){
-	LoadDynamicArgs : function(args, obj){
-		if(typeof args == 'object' && typeof obj == 'object'){
-			var keys = Object.keys(args);
-			for (var i = keys.length - 1; i >= 0; i--) {
-				var key = keys[i];
-				obj[key] = args[key];
+	imgUrl : function () { 
+		// Another personal preference. Declare any local variables at the top of the scope.
+		// this example is the start of the function.
+		var layernames = [];
+		var extras = [];
+		
+
+		for (var i = this.layers.length - 1; i >= 0; i--) {
+			this.layers[i]
+			layernames.push(layr.name) ? layr.isOn : continue;
+			//This is just personal preference to utilize ternary for brevity.
+			//Native for loop vs forEach yields ~40x speed increase.
+		}
+
+		//Since self.keys is an array
+		var keys = Object.keys(self); //Array of Object's keys.
+		var regEx = new RegExp(/size|mapCgi|mapfile|layers|zoomto|odps|ndps|div|img_metadata/);
+		//optimized for loop by nesting if, using RegExp object to utilize speed enhancments from
+		//letting interpriter compile RegEx and utilize test vs search.
+		// RegExp.prototype.test 30%-60% speed enhancment for just indexOf() style of testing.
+		for (var i = keys.length - 1; i >= 0; i--) {
+			if(keys[i].length > 0){
+				extras.push(keys[i]) ? regEx.test(keys[i]) : continue;				
 			}
 		}
-		return obj;
-	};			
-}
+		
+
+		  var qstr = ['layers=', layernames.join('+'), '&mapfile=', self.mapfile,
+		    '&size=', self.size.value.join('x'), '&rect=', self.zoomtoRect() ].join('');
+		  if (self.odps && self.odps.value) {
+		    qstr += ['&odps=', self.odps.value.join(',')].join('');
+		  }
+		  if (self.ndps && self.ndps.value) {
+		    qstr += ['&ndps=', self.ndps.value.join(',')].join('');
+		  }
+		  if (self.div && self.div.value) {
+		    qstr += ['&div=', self.div.value].join('');
+		  }
+
+		  extras.forEach(function(key) {
+		    qstr += ['&', key, '=', self[key]].join('');
+		  });
+
+		  return [self.mapCgi.value, '?', qstr].join('');
+			});
+
+};	
+
+
 
 /// This should go into a common Utils module file.\
 /// Overload generic Object class to include a method for loading arguments

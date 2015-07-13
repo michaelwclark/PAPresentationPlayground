@@ -18,9 +18,9 @@ function PolkMapImage(args){
 		  self.zoomout= { src: 'http://doffub-next.assess.co.polk.ia.us/img/web/zoom_out.png', ui: 'image', title: 'Zoom Out' };
 		  self.size   = { value: [640, 480], ui: 'text', label: 'Size (pixels)',
 		                  style: 'width: 6em' };
-		  self.layers = [{ name: "Aerial_2014", isOn: false, ui: 'checkbox', label: 'Aerial'  },
-		                 { name: "parcel"     , isOn: true , ui: 'checkbox', label: 'Parcels' },
-		                 { name: "street"     , isOn: true , ui: 'checkbox', label: 'Streets' }
+		  self.layers = [{ name: 'Aerial_2014', isOn: false, ui: 'checkbox', label: 'Aerial'  },
+		                 { name: 'parcel'     , isOn: true , ui: 'checkbox', label: 'Parcels' },
+		                 { name: 'street'     , isOn: true , ui: 'checkbox', label: 'Streets' }
 		  ];
 
 			// The below properties all look to have the same composition. 
@@ -31,9 +31,9 @@ function PolkMapImage(args){
 		                  ui: 'text', label: 'New DPs', style: 'display: inline' };
 		  self.odps   = { value: ['29100452522003'], ui: 'text', label: 'Old DPs',
 		                  style: 'display: inline' };
-		  self.div    = { value: "201500500", ui: 'text', label: 'Division Sheet#',
+		  self.div    = { value: '201500500', ui: 'text', label: 'Division Sheet#',
 		                  style: 'display: inline; width: 6em' };
-		  self.dp     = { value: "29100452522003", ui: 'none', label: 'DP',
+		  self.dp     = { value: '29100452522003', ui: 'none', label: 'DP',
 		                  style: 'display: inline' };
 		  self.extent = { value: [], ui: 'text', label: 'Coordinates',
 		                  style: 'display: inline; width: 16em' };
@@ -54,7 +54,7 @@ function PolkMapImage(args){
 		//right now PolkMapImg.zoomto is a dynamic runtime property with no validation or 
 		//constraint. If this isn't set properly (i.e. containing an object with value property)
 		//this function will error out and stop further execution (unless caught).
-		return "0+0+" + zoomtoVal +"+" +zh; //This is faster than .join()
+		return '0+0+' + zoomtoVal +'+' +zh; //This is faster than .join()
 		//consider utilizing builtin String.concat, a custom helper, or  the above 
 		//(especially when these .join calls are nested)
 		return [0,0,zoomToVal,zh].join('+');
@@ -100,7 +100,7 @@ function PolkMapImage(args){
 	};
 
 	buildQueryString : function(layernames){ //this will be the object instance that called this method.
-		var queryString = "&"
+		var queryString = '&'
 		var queryObj = {
 			layers: layernames.join('+'),
 			mapfile: self.mapfile,
@@ -110,7 +110,7 @@ function PolkMapImage(args){
 
 		for (var i = queryObj.keys.length - 1; i >= 0; i--) {
 			var key = queryObj.keys[i];			
-			queryString.concat('&', key, "=",queryObj[key]);
+			queryString.concat('&', key, '=',queryObj[key]);
 		}
 		//Options: vanilla serilaize method, JQuery's $.param() method (requires dependancy)
 		// for now this will suffice. If this method of queryString building is used heavily in our app 
@@ -121,19 +121,19 @@ function PolkMapImage(args){
 		// sanity checks for value or length or type. We should structure our data
 		// in a way that we can always assume the state of an object, and despite having or not
 		// having a property set the activity is essentially the same.
-		if(typeof self.odps.value != "undefined"){
-			queryString.concat("&odps=", self.odps.value.join(','));
+		if(typeof self.odps.value != 'undefined'){
+			queryString.concat('&odps=', self.odps.value.join(','));
 		}
 
-		if(typeof self.ndps.value != "undefined"){
-			queryString.concat("&ndps=", self.ndps.value.join(','));
+		if(typeof self.ndps.value != 'undefined'){
+			queryString.concat('&ndps=', self.ndps.value.join(','));
 		}
 
-		if(typeof self.div.value != "undefined"){
-			queryString.concat("&div=", self.div.value);
+		if(typeof self.div.value != 'undefined'){
+			queryString.concat('&div=', self.div.value);
 		}
 		
-		return self.mapCgi.value + "?" + queryString;		
+		return self.mapCgi.value + '?' + queryString;		
 	};
 
 	setContainerInnerHtml = function() {
@@ -141,40 +141,76 @@ function PolkMapImage(args){
   
 		var cid = this.containerId;
   		var controls_id = cid + '_controls';
-  		var zoomto_id = cid+"_zoomto";
-  		var zoomout_id = cid + "_zoomout";
-  		var zoomin_id = cid + "_zoomin";
-		var imgId = cid +"_img";
-		var busy_id = cid + "_busy";
+  		var zoomto_id = cid + '_zoomto';
+  		var zoomout_id = cid + '_zoomout';
+  		var zoomin_id = cid + '_zoomin';
+		var img_id = cid + '_img';
+		var busy_id = cid + '_busy';
+		var size_id = cid + '_size';
+		var odps_id = cid + '_odps';
+		var ndps_id = cid + '_ndps';
+		var div_id = cid + '_div';
+		var ext_id = cid + '_extent';
+		var clickxy_id = cid + '_clickxy';
+		var lonlat_id = cid + '_click_lonlat';
+
 
 		var wh = self.size.value;
 		var domEls = new Array();
+		var label;
 
 		//Initial Map IMG- Always Create.
-		domEls.push(domHelper.createEl("img", {id:imgID, src: this.imgUrl(), width:wh[0], height:wh[1], alt:"Loading Map..."}));
+		domEls.push(domHelper.createEl('img', {id:img_id, src: this.imgUrl(), width:wh[0], height:wh[1], alt:'Loading Map...'})); //Why not in markup?
+		domEls.push(domHelper.createEl('span',{id:busy_id, style:'display:none'}, '&nbsp; loading map....')); //Why not in markup?
+		domEls.push(domHelper.createEl('br',{}));
 		
-		var label = self.zoomto.label || '';
 
 		if(this.zoomto.ui == 'text'){
-			domEls.push(domHelper.createEl("label", {for:zoomto_id}, label));
-			domEls.push(domHelper.createEl("input", {type:'text', id:zoomto_id, value: this.zoomin.src, title: this.zoomin.title}));					
+			label = self.zoomto.label || '';
+			domEls.push(domHelper.createEl('label', {for:zoomto_id}, label));
+			domEls.push(domHelper.createEl('input', {type:'text', id:zoomto_id, value: this.zoomin.src, title: this.zoomin.title}));					
 		}
 
 		if(this.zoomin.ui == 'image'){
-			domEls.push(domHelper.createEl("input", {type:'image',id:zoomin_id, src:this.zoomin.src, title:this.zoomin.title}));
+			domEls.push(domHelper.createEl('input', {type:'image',id:zoomin_id, src:this.zoomin.src, title:this.zoomin.title}));
 		}
 
 		if(this.zoomout.ui == 'image'){
-			domEls.push(domHelper.createEl("input",{type:'image',id:zoomout_id, src:this.zoomout.src, title:this.zoomout.title}));
+			domEls.push(domHelper.createEl('input',{type:'image',id:zoomout_id, src:this.zoomout.src, title:this.zoomout.title}));
 		}
 		
-		domEls.push(domHelper.createEl("span",{id:busy_id, style:"display:none"}, "&nbsp; loading map...."));
-		domEls.push(domHelper.createEl("br",{}));
-		
+
+		if(this.size.ui == 'text'){
+ 	          label = self.size.label || '';
+			domEls.push(domHelper.createEl('label',{for:size_id}, label));
+			domEls.push(domHelper.createEl('input',{type:'text', id:size_id, value:this.size.value.join('x'), style:this.size.style}))
+			domEls.push(domHelper.createEl('br',{}));
+
+		}
+
+		// Layers Each Iteration goes
+
+		//...
+
+		// .. Somewhere in Here..
+
+		if(this.odps.ui == 'text'){
+
+		}
+		// TODO: create another helper method to create input/label together
+		// needs to accept a closure or boolean, ID, and possibly label text.
+		// 
+		// build up a UI array/list to iterate through to create label/text utilizing domHelper.createEl()
+		// this should reduce code length significantly
 
 	}
 
 
+//TODO: setMapImageWithBlob
+//	setImgSrc
+//   setImgSize
+//   addEventListeners
+//
 		
 
 };	
@@ -191,7 +227,7 @@ Object.prototype.LoadDynamicArgs = function(args){
 		for (var i = keys.length - 1; i >= 0; i--) {
 			var key = keys[i];
 			obj[key] = args[key];
-		}"
+		}'
 	}
 	return obj;
 }

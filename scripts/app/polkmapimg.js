@@ -5,7 +5,7 @@ function PolkMapImage(args){
 	//into it's own function to call on when needed.
 
 	//var self = this.LoadDynamicArgs(args); //WILL FAIL, unless Object prototype code has been evaluated.
-	var self = this.loadDefaults();
+	var self = this.loadDefaults(); 
 
 	loadDefaults : function(){
   		  // set default properties here
@@ -46,13 +46,18 @@ function PolkMapImage(args){
 	};
 
 	zoomtoRect : function(){
-		var wh = this.size.value;
-		var zh = Math.round(this.zoomto.value * wh[1] / wh[0]);
+		var ret = new String();
+		var wh = self.size.value;
+		var zoomToVal = self.zoomto.value;
+		var zh = Math.round(zoomToVal * wh[1] / wh[0]);
 		//Here is a good example of how creating more structure objects can avoid errors.
 		//right now PolkMapImg.zoomto is a dynamic runtime property with no validation or 
 		//constraint. If this isn't set properly (i.e. containing an object with value property)
 		//this function will error out and stop further execution (unless caught).
-		return [0,0,this.zoomto.value,zh].join('+');
+		return "0+0+" + zoomtoVal +"+" +zh; //This is faster than .join()
+		//consider utilizing builtin String.concat, a custom helper, or  the above 
+		//(especially when these .join calls are nested)
+		return [0,0,zoomToVal,zh].join('+');
 	};
 
 	imgUrl : function () { 
@@ -60,15 +65,17 @@ function PolkMapImage(args){
 		// this example is the start of the function.
 		var layernames = [];
 		var extras = [];
-		
+		var qstr;
 
-		for (var i = this.layers.length - 1; i >= 0; i--) {
-			this.layers[i]
+		for (var i = self.layers.length - 1; i >= 0; i--) {
+			self.layers[i]
 			layernames.push(layr.name) ? layr.isOn : continue;
 			//This is just personal preference to utilize ternary for brevity.
 			//Native for loop vs forEach yields ~40x speed increase.
 		}
 
+
+		//Gut feeling says pull this following section into it's own method.
 		//Since self.keys is an array
 		var keys = Object.keys(self); //Array of Object's keys.
 		var regEx = new RegExp(/size|mapCgi|mapfile|layers|zoomto|odps|ndps|div|img_metadata/);
@@ -80,26 +87,51 @@ function PolkMapImage(args){
 				extras.push(keys[i]) ? regEx.test(keys[i]) : continue;				
 			}
 		}
-		
 
-		  var qstr = ['layers=', layernames.join('+'), '&mapfile=', self.mapfile,
-		    '&size=', self.size.value.join('x'), '&rect=', self.zoomtoRect() ].join('');
-		  if (self.odps && self.odps.value) {
-		    qstr += ['&odps=', self.odps.value.join(',')].join('');
-		  }
-		  if (self.ndps && self.ndps.value) {
-		    qstr += ['&ndps=', self.ndps.value.join(',')].join('');
-		  }
-		  if (self.div && self.div.value) {
-		    qstr += ['&div=', self.div.value].join('');
-		  }
+		//build queryString
+		return self.buildQueryString();
+	};
 
-		  extras.forEach(function(key) {
-		    qstr += ['&', key, '=', self[key]].join('');
-		  });
+	buildQueryString : function(layernames,){ //this will be the object instance that called this method.
+		var qStr;
+		var layers = layernames.join("+");
+		var size = this.size.value.join('x'); //Potential erorrs: should assume this.size will be an object.
 
-		  return [self.mapCgi.value, '?', qstr].join('');
-			});
+	};
+
+	queryStringHelper: function(k,seperator){
+		var retStr;
+
+		if(typeof(k.value) != "undefined"){
+			retStr = k.value.join(seperator);	
+		}
+		return retStr;
+	};
+
+		// var queryString = {
+		// 	layers: layernames.join('+'),
+		// 	mapfile: self.mapfile
+		// }
+
+		//   qstr = ['layers=', layernames.join('+'), '&mapfile=', self.mapfile,
+		//     '&size=', self.size.value.join('x'), '&rect=', self.zoomtoRect() ].join('');
+
+		//   if (self.odps && self.odps.value) {
+		//     qstr += ['&odps=', self.odps.value.join(',')].join('');
+		//   }
+		//   if (self.ndps && self.ndps.value) {
+		//     qstr += ['&ndps=', self.ndps.value.join(',')].join('');
+		//   }
+		//   if (self.div && self.div.value) {
+		//     qstr += ['&div=', self.div.value].join('');
+		//   }
+
+		//   extras.forEach(function(key) {
+		//     qstr += ['&', key, '=', self[key]].join('');
+		//   });
+
+		//   return [self.mapCgi.value, '?', qstr].join('');
+		// 	});
 
 };	
 
@@ -119,3 +151,4 @@ Object.prototype.LoadDynamicArgs = function(args){
 	}
 	return obj;
 }
+

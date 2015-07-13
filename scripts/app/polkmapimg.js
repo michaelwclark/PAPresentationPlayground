@@ -83,55 +83,63 @@ function PolkMapImage(args){
 		//letting interpriter compile RegEx and utilize test vs search.
 		// RegExp.prototype.test 30%-60% speed enhancment for just indexOf() style of testing.
 		for (var i = keys.length - 1; i >= 0; i--) {
-			if(keys[i].length > 0){
-				extras.push(keys[i]) ? regEx.test(keys[i]) : continue;				
+			//if Object's Key has length aka is Set, run regex, if match push to extra layers.
+			if(keys[i].length > 0){  //I almost wonder if this length check is redundant with .test.
+				// Any input here Jerry?
+				extras.push(keys[i]) ? regEx.test(keys[i]) : continue;			
 			}
 		}
 
-		//build queryString
-		return self.buildQueryString();
-	};
-
-	buildQueryString : function(layernames,){ //this will be the object instance that called this method.
-		var qStr;
-		var layers = layernames.join("+");
-		var size = this.size.value.join('x'); //Potential erorrs: should assume this.size will be an object.
-
-	};
-
-	queryStringHelper: function(k,seperator){
-		var retStr;
-
-		if(typeof(k.value) != "undefined"){
-			retStr = k.value.join(seperator);	
+		for (var i = extras.length - 1; i >= 0; i--) {
+			var key = extras[i];
+			queryString.concat('&',key,'=',self[key]);
 		}
-		return retStr;
+
+		//build queryString
+		return self.buildQueryString(layernames);
 	};
 
-		// var queryString = {
-		// 	layers: layernames.join('+'),
-		// 	mapfile: self.mapfile
-		// }
+	buildQueryString : function(layernames){ //this will be the object instance that called this method.
+		var queryString = "&"
+		var queryObj = {
+			layers: layernames.join('+'),
+			mapfile: self.mapfile,
+			size: self.size.value.join('x'),
+			rect: self.zoomtoRect()			
+		};	
 
-		//   qstr = ['layers=', layernames.join('+'), '&mapfile=', self.mapfile,
-		//     '&size=', self.size.value.join('x'), '&rect=', self.zoomtoRect() ].join('');
+		for (var i = queryObj.keys.length - 1; i >= 0; i--) {
+			var key = queryObj.keys[i];			
+			queryString.concat('&', key, "=",queryObj[key]);
+		}
+		//Options: vanilla serilaize method, JQuery's $.param() method (requires dependancy)
+		// for now this will suffice. If this method of queryString building is used heavily in our app 
+		// then I think a more suitable refactor is in order.
 
-		//   if (self.odps && self.odps.value) {
-		//     qstr += ['&odps=', self.odps.value.join(',')].join('');
-		//   }
-		//   if (self.ndps && self.ndps.value) {
-		//     qstr += ['&ndps=', self.ndps.value.join(',')].join('');
-		//   }
-		//   if (self.div && self.div.value) {
-		//     qstr += ['&div=', self.div.value].join('');
-		//   }
 
-		//   extras.forEach(function(key) {
-		//     qstr += ['&', key, '=', self[key]].join('');
-		//   });
+		//Note: Solidifying our Models/Objects will get rid of a LOT of these 
+		// sanity checks for value or length or type. We should structure our data
+		// in a way that we can always assume the state of an object, and despite having or not
+		// having a property set the activity is essentially the same.
+		if(typeof self.odps.value != "undefined"){
+			queryString.concat("&odps=", self.odps.value.join(','));
+		}
 
-		//   return [self.mapCgi.value, '?', qstr].join('');
-		// 	});
+		if(typeof self.ndps.value != "undefined"){
+			queryString.concat("&ndps=", self.ndps.value.join(','));
+		}
+
+		if(typeof self.div.value != "undefined"){
+			queryString.concat("&div=", self.div.value);
+		}
+		
+		return self.mapCgi.value + "?" + queryString;		
+	};
+
+	
+
+
+		
 
 };	
 
@@ -147,8 +155,18 @@ Object.prototype.LoadDynamicArgs = function(args){
 		for (var i = keys.length - 1; i >= 0; i--) {
 			var key = keys[i];
 			obj[key] = args[key];
-		}
+		}"
 	}
 	return obj;
 }
 
+
+
+String.prototype.supplant = function (o) {
+    return this.replace(/{([^{}]*)}/g,
+        function (a, b) {
+            var r = o[b];
+            return typeof r === 'string' || typeof r === 'number' ? r : a;
+        }
+    );
+};

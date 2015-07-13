@@ -7,7 +7,7 @@ function PolkMapImg(args){  // var pmi1 = new PolkMapImg({mapfile: "div.map"}); 
   self.zoomto = { value: 2640, ui: 'text', label: 'Width (feet)', 
                   style: 'display: inline; width: 4em' };  // 1/2 mi width
   self.zoomin = { src: 'http://doffub-next.assess.co.polk.ia.us/img/web/zoom_in.png', ui: 'image', title: 'Zoom In' };
-  self.zoomout= { src: 'http://doffub-next.assess.co.polk.ia.us/img/web/zoom_out.png', ui: 'image', title: 'Zoom Out' };
+  self.zoomout= { src: 'http://doffub-next.assess.co.polk.ia.us/img/web/zoom_out.png"', ui: 'image', title: 'Zoom Out' };
   self.size   = { value: [640, 480], ui: 'text', label: 'Size (pixels)',
                   style: 'width: 6em' };
   self.layers = [{ name: "Aerial_2014", isOn: false, ui: 'checkbox', label: 'Aerial'  },
@@ -75,6 +75,7 @@ PolkMapImg.prototype.imgUrl = function () { var self = this;
 
   return [self.mapCgi.value, '?', qstr].join('');
 };
+
 
 PolkMapImg.prototype.setContainerInnerHtml = function () { var self = this;
   var pmi = new PolkMapImg();

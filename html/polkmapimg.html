@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html><head><meta charset="UTF-8">
+  <title>polkmapimg.html</title>
+  <script src="./polkmapimg.js"></script>
+</head><body>
+  <p>Old DPs & below don't respond to input. Need click to center. Reduce code w/ custom objects vs subroutines. Add special click processing, usemap/tooltips, dp & lon/lat from click/hover, caching. Change from click-to-center to dragging preloaded tiles ala Google? Switch to canvas layers?</p>
+  <div id="pmi1"></div>
+  <script>
+    var pmi1 = new PolkMapImg({
+      containerId: "pmi1",
+      mapfile:     "div0.map",
+      layers: [
+        { name:"Aerial_2014",isOn: false, ui: 'checkbox', label: 'Aerial'  },
+        { name: "parcel"   , isOn: true , ui: 'checkbox', label: 'Parcels' },
+        { name: "street"   , isOn: true , ui: 'checkbox', label: 'Streets' },
+        { name: "odps"     , isOn: true , ui: 'checkbox', label: 'Old Parcels'},
+        { name: "ndps"     , isOn: true , ui: 'checkbox', label: 'New Parcels'},
+        { name: "nanno"    , isOn: false, ui: 'checkbox', label: 'Annotations'}
+      ],
+      div:  { value: "201500500", ui: 'text', label: 'Div Sheet#',
+              style: 'display: inline; width: 6em' },
+      ndps: { value: ['29100452571000','29100452572000','29100452573000'],
+              ui: 'text', label: 'New DPs', style: 'display: inline' },
+      odps: { value: ["29100452522003"], ui: 'text', label: 'Old DPs',
+              style: 'display: inline' },
+      extent:{value: [], ui: 'text', label: 'Coordinates',
+              style: 'display: inline; width: 16em' },
+      dp:   {}
+    });
+    pmi1.setContainerInnerHtml();
+    pmi1.addEventListeners();
+    pmi1.setImgSrc();
+  </script>
+</body></html>
+

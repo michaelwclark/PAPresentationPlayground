@@ -55,9 +55,9 @@ function PolkMapImage(args){
 		//constraint. If this isn't set properly (i.e. containing an object with value property)
 		//this function will error out and stop further execution (unless caught).
 		return '0+0+' + zoomtoVal +'+' +zh; //This is faster than .join()
+		// return [0,0,zoomToVal,zh].join('+');
 		//consider utilizing builtin String.concat, a custom helper, or  the above 
 		//(especially when these .join calls are nested)
-		return [0,0,zoomToVal,zh].join('+');
 	};
 
 	imgUrl : function () { 
@@ -68,7 +68,6 @@ function PolkMapImage(args){
 		var qstr;
 
 		for (var i = self.layers.length - 1; i >= 0; i--) {
-			self.layers[i]
 			layernames.push(layr.name) ? layr.isOn : continue;
 			//This is just personal preference to utilize ternary for brevity.
 			//Native for loop vs forEach yields ~40x speed increase.
@@ -86,6 +85,7 @@ function PolkMapImage(args){
 			//if Object's Key has length aka is Set, run regex, if match push to extra layers.
 			if(keys[i].length > 0){  //I almost wonder if this length check is redundant with .test.
 				// Any input here Jerry?
+	//remove this parent IF
 				extras.push(keys[i]) ? regEx.test(keys[i]) : continue;			
 			}
 		}
@@ -100,7 +100,7 @@ function PolkMapImage(args){
 	};
 
 	buildQueryString : function(layernames){ //this will be the object instance that called this method.
-		var queryString = '&'
+		var queryString = '&';
 		var queryObj = {
 			layers: layernames.join('+'),
 			mapfile: self.mapfile,

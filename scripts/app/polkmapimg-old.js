@@ -1,4 +1,4 @@
-function PolkMapImg(args){  // var pmi1 = new PolkMapImg({mapfile: "div.map"}); var self = this;  // this gets reassigned in the forEach function below
+
   var self = this;
   // set default properties here
   self.mapCgi = { value: 'http://doffub-next.assess.co.polk.ia.us/cgi-bin/off/maps/polkmapimage0', ui: 'none', label: 'CGI' };
